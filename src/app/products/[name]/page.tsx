@@ -4,13 +4,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SentimentBadge } from "@/components/sentiment-badge";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { slugify } from "@/lib/slugify";
+
+async function getSlugMap() {
+  const shoes = await prisma.footwearNote.findMany({
+    select: { shoeName: true },
+    distinct: ["shoeName"],
+  });
+  const map: Record<string, string> = {};
+  for (const s of shoes) {
+    map[slugify(s.shoeName)] = s.shoeName;
+  }
+  return map;
+}
 
 export async function generateStaticParams() {
   const shoes = await prisma.footwearNote.findMany({
     select: { shoeName: true },
     distinct: ["shoeName"],
   });
-  return shoes.map((s) => ({ name: encodeURIComponent(s.shoeName) }));
+  return shoes.map((s) => ({ name: slugify(s.shoeName) }));
 }
 
 export default async function ProductDetailPage({
@@ -19,7 +32,10 @@ export default async function ProductDetailPage({
   params: Promise<{ name: string }>;
 }) {
   const { name } = await params;
-  const shoeName = decodeURIComponent(name);
+  const slugMap = await getSlugMap();
+  const shoeName = slugMap[name];
+
+  if (!shoeName) return notFound();
 
   const notes = await prisma.footwearNote.findMany({
     where: { shoeName },

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import { SentimentBadge } from "@/components/sentiment-badge";
 import Link from "next/link";
+import { slugify } from "@/lib/slugify";
 
 export default async function ProductsPage() {
   const footwearNotes = await prisma.footwearNote.findMany({
@@ -53,7 +54,7 @@ export default async function ProductsPage() {
           return (
             <Link
               key={product.shoeName}
-              href={`/products/${encodeURIComponent(product.shoeName)}`}
+              href={`/products/${slugify(product.shoeName)}`}
             >
               <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
                 <CardContent className="p-5">

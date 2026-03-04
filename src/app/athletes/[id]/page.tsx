@@ -15,6 +15,7 @@ import { TopicTag } from "@/components/topic-tag";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { slugify } from "@/lib/slugify";
 
 export async function generateStaticParams() {
   const athletes = await prisma.athlete.findMany({ select: { id: true } });
@@ -127,7 +128,7 @@ export default async function AthleteProfilePage({
                     <TableRow key={note.id}>
                       <TableCell className="font-medium">
                         <Link
-                          href={`/products/${encodeURIComponent(note.shoeName)}`}
+                          href={`/products/${slugify(note.shoeName)}`}
                           className="hover:text-primary transition-colors"
                         >
                           {note.shoeName}
